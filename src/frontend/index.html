@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Marketplace Automation Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fab fa-facebook"></i>
+                    <h1>Marketplace Automation</h1>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-dot" id="connectionStatus"></span>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Control Panel -->
+            <section class="control-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-cogs"></i> Control Panel</h2>
+                </div>
+                
+                <!-- Google Sheets Configuration -->
+                <div class="config-section">
+                    <h3>Google Sheets Configuration</h3>
+                    <div class="input-group">
+                        <label for="spreadsheetUrl">Google Sheets URL:</label>
+                        <input type="url" id="spreadsheetUrl" placeholder="https://docs.google.com/spreadsheets/d/your-sheet-id/edit">
+                        <button id="validateSheet" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Validate Sheet
+                        </button>
+                    </div>
+                    <div id="sheetValidationResult" class="validation-result"></div>
+                </div>
+
+                <!-- Automation Controls -->
+                <div class="automation-controls">
+                    <h3>Automation Controls</h3>
+                    <div class="control-buttons">
+                        <button id="startAutomation" class="btn btn-success" disabled>
+                            <i class="fas fa-play"></i> Start Automation
+                        </button>
+                        <button id="pauseAutomation" class="btn btn-warning" disabled>
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button id="stopAutomation" class="btn btn-danger" disabled>
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                        <button id="processSheet" class="btn btn-info" disabled>
+                            <i class="fas fa-sync"></i> Process Sheet
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manual Testing -->
+                <div class="testing-section">
+                    <h3>Testing & Validation</h3>
+                    <div class="test-buttons">
+                        <button id="testConnection" class="btn btn-secondary">
+                            <i class="fas fa-wifi"></i> Test Connection
+                        </button>
+                        <button id="validateImages" class="btn btn-secondary">
+                            <i class="fas fa-images"></i> Validate Images
+                        </button>
+                        <button id="dryRun" class="btn btn-secondary">
+                            <i class="fas fa-flask"></i> Dry Run Test
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Dashboard -->
+            <section class="stats-dashboard">
+                <div class="panel-header">
+                    <h2><i class="fas fa-chart-bar"></i> Statistics</h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalProcessed">0</h3>
+                            <p>Total Processed</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="successfulListings">0</h3>
+                            <p>Successful</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon error">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="failedListings">0</h3>
+                            <p>Failed</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingListings">0</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Current Processing -->
+            <section class="current-processing">
+                <div class="panel-header">
+                    <h2><i class="fas fa-cog fa-spin"></i> Current Processing</h2>
+                </div>
+                
+                <div class="processing-info">
+                    <div class="current-item" id="currentItem">
+                        <div class="item-placeholder">
+                            <i class="fas fa-inbox"></i>
+                            <p>No items currently being processed</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Ready to start</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Items -->
+            <section class="pending-items">
+                <div class="panel-header">
+                    <h2><i class="fas fa-hourglass-half"></i> Pending Items</h2>
+                    <button id="refreshPending" class="btn btn-small">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                </div>
+                
+                <div class="items-list" id="pendingItemsList">
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No pending items found</p>
+                        <small>Configure your Google Sheet and add items to get started</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Log -->
+            <section class="activity-log">
+                <div class="panel-header">
+                    <h2><i class="fas fa-terminal"></i> Activity Log</h2>
+                    <div class="log-controls">
+                        <button id="clearLog" class="btn btn-small btn-danger">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button id="exportLog" class="btn btn-small">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="log-container" id="activityLog">
+                    <div class="log-entry system">
+                        <span class="timestamp">[System]</span>
+                        <span class="message">Dashboard initialized successfully</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Upload Section -->
+            <section class="image-upload" style="display: none;">
+                <div class="panel-header">
+                    <h2><i class="fas fa-images"></i> Image Upload & Validation</h2>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-placeholder">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop images here or click to browse</p>
+                        <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                
+                <div class="uploaded-images" id="uploadedImages"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <div class="system-info">
+                    <span>System Status: <span id="systemStatus">Online</span></span>
+                    <span>Uptime: <span id="uptime">00:00:00</span></span>
+                    <span>Version: 1.0.0</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" id="showHelp">Help</a>
+                    <a href="#" id="showSettings">Settings</a>
+                    <a href="https://github.com" target="_blank">GitHub</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Help & Documentation</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <h4>Getting Started</h4>
+                <ol>
+                    <li>Configure your Google Sheets URL and validate the connection</li>
+                    <li>Ensure your sheet has the correct column structure</li>
+                    <li>Add items to your sheet with status "Ready" or "Process"</li>
+                    <li>Click "Start Automation" to begin processing</li>
+                </ol>
+                
+                <h4>Required Sheet Columns</h4>
+                <ul>
+                    <li><strong>Item Name:</strong> Title of the item to sell</li>
+                    <li><strong>Description:</strong> Detailed description</li>
+                    <li><strong>Price:</strong> Price in dollars</li>
+                    <li><strong>Category:</strong> Facebook Marketplace category</li>
+                    <li><strong>Condition:</strong> Item condition (New, Used, etc.)</li>
+                    <li><strong>Photos:</strong> Image file names or URLs</li>
+                    <li><strong>Location:</strong> Pickup location</li>
+                    <li><strong>Status:</strong> Processing status (auto-updated)</li>
+                </ul>
+                
+                <h4>Troubleshooting</h4>
+                <p>Check the Activity Log for detailed error messages and system events.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="autoRefresh" checked>
+                        Auto-refresh pending items
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="soundNotifications">
+                        Sound notifications
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label for="refreshInterval">Refresh interval (seconds):</label>
+                    <input type="number" id="refreshInterval" value="30" min="10" max="300">
+                </div>
+                <div class="setting-group">
+                    <label for="logLevel">Log level:</label>
+                    <select id="logLevel">
+                        <option value="info">Info</option>
+                        <option value="warn">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

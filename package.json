@@ -1,0 +1,43 @@
+{
+  "name": "facebook-marketplace-automation",
+  "version": "1.0.0",
+  "description": "Automated Facebook Marketplace listing tool with Google Sheets integration",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "npm run build-frontend && nodemon src/server.js",
+    "build-frontend": "node scripts/build-frontend.js",
+    "setup": "npm install && npm run build-frontend",
+    "clean": "rm -rf public/*",
+    "rebuild": "npm run clean && npm run build-frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "facebook",
+    "marketplace",
+    "automation",
+    "google-sheets",
+    "puppeteer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@browserbasehq/sdk": "^2.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^128.0.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^21.11.0",
+    "puppeteer-core": "^24.14.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "sharp": "^0.32.6",
+    "socket.io": "^4.7.4",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
